@@ -1,1 +1,1 @@
-<?php return "prod"; ?>
+<?php return "uat"; ?>
