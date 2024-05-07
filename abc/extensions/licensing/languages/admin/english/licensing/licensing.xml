@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions>
+	<definition>
+		<key>licensing_name</key>
+		<value><![CDATA[E-voucher Import and Handling]]></value>
+	</definition>
+	<definition>
+		<key>licensing_product_type_licensed</key>
+		<value><![CDATA[E-voucher]]></value>
+	</definition>
+	<definition>
+		<key>licensing_product_type_catalog_only</key>
+		<value><![CDATA[Catalog only]]></value>
+	</definition>
+	<definition>
+		<key>licensing_product_type_generic</key>
+		<value><![CDATA[Generic]]></value>
+	</definition>
+	<definition>
+		<key>licensing_switch_confirm_text</key>
+		<value><![CDATA[Are you sure you want to switch this product to be a E-voucher type? There is no undo as some product settings will be modified.]]></value>
+	</definition>
+	<definition>
+		<key>licensing_entry_product_type</key>
+		<value><![CDATA[Product Type:]]></value>
+	</definition>
+	<definition>
+		<key>licensing_licenses</key>
+		<value><![CDATA[E-vouchers]]></value>
+	</definition>
+	<definition>
+		<key>licensing_column_id</key>
+		<value><![CDATA[ID]]></value>
+	</definition>
+	<definition>
+		<key>licensing_column_key</key>
+		<value><![CDATA[E-voucher code]]></value>
+	</definition>
+	<definition>
+		<key>licensing_column_option_value_name</key>
+		<value><![CDATA[Option Value Name]]></value>
+	</definition>
+	<definition>
+		<key>licensing_column_order_id</key>
+		<value><![CDATA[Order ID]]></value>
+	</definition>
+	<definition>
+		<key>licensing_column_date_modified</key>
+		<value><![CDATA[Update Date]]></value>
+	</definition>
+	<definition>
+		<key>licensing_import_success</key>
+		<value><![CDATA[Success:  %s E-voucher codes have been upload successfully.]]></value>
+	</definition>
+	<definition>
+		<key>licensing_upload_file_label</key>
+		<value><![CDATA[Import E-voucher codes from txt-file&nbsp;For Option Value:&nbsp;]]></value>
+	</definition>
+</definitions>

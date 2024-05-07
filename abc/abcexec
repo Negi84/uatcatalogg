@@ -1,0 +1,140 @@
+#!/usr/bin/env php
+<?php
+/**
+ * AbanteCart, Ideal Open Source Ecommerce Solution
+ * http://www.abantecart.com
+ *
+ * Copyright 2011-2022 Belavier Commerce LLC
+ *
+ * This source file is subject to Open Software License (OSL 3.0)
+ * License details is bundled with this package in the file LICENSE.txt.
+ * It is also available at this URL:
+ * <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ * UPGRADE NOTE:
+ * Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ * versions in the future. If you wish to customize AbanteCart for your
+ * needs please refer to http://www.abantecart.com for more information.
+ */
+
+namespace abc\commands;
+
+use abc\core\ABC;
+use Exception;
+define('PHP_MIN_VERSION', '8.1.0');
+if (version_compare(phpversion(), PHP_MIN_VERSION, '<')) {
+    exit("\n\t\t\tphp v".PHP_MIN_VERSION."+  Required for AbanteCart to work properly!\n");
+}
+set_include_path(__DIR__);
+define('DS', DIRECTORY_SEPARATOR);
+define('ABCEXEC', TRUE);
+//Detect if included or run directly
+if (basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"])) {
+    define('DIRECT', TRUE);
+} else {
+    define('DIRECT', FALSE);
+}
+
+//process command
+$args = $argv;
+//remove file name from argument list
+array_shift($args);
+//if no arguments - show help page
+if ($args) {
+    $command = array_shift($args);
+    $command = str_replace("::", ":", $command);
+} else {
+    echo "Unknown command. Show help...\n\n";
+    $command = 'help:help';
+}
+
+if (!strpos($command, ':') || $command == '?') {
+    $command = 'help:help';
+}
+
+if (!preg_match('/^--(.*)$/', $command)) {
+    list($class, $action) = explode(':', $command);
+} else {
+    echo "Wrong command.\n\n";
+    $class = $action = '';
+}
+
+try {
+    require __DIR__ . DS . 'core' . DS . 'ABC.php';
+    //run constructor of ABC class to load environment
+
+    $ABC = new ABC();
+    if (!$ABC::getStageName()) {
+        $ABC->loadDefaultStage();
+        echo "Default stage environment loaded.\n\n";
+    }
+    require __DIR__ . DS . 'core' . DS . 'init' . DS . 'cli.php';
+} catch (Exception $e) {
+    if (DIRECT) {
+        showException($e);
+        exit(1);
+    } else {
+        throw $e;
+    }
+}
+//set sign
+ABC::env('abcexec', true);
+
+if (!$class || $class == 'help' || $action == 'help') {
+    showHelpPage($class);
+}
+
+//try to get instance of executor or die
+/**
+ * @var Install | array $executor
+ */
+$executor = getExecutor($class);
+
+//get options
+$options = parseOptions($args);
+
+if (!$options && !$action) {
+    showHelpPage($class);
+}
+
+//validate command and options
+$errors = $executor->validate($action, $options);
+if ($errors) {
+    if (DIRECT){
+        showError("Validation errors occurred");
+        foreach ($errors as $error) {
+            showError("\t".$error);
+        }
+        exit(1);
+    } else {
+        throw $errors;
+    }
+}
+
+//run command
+try {
+    showResult($executor->run($action, $options));
+} catch (Exception $e) {
+    if (DIRECT){
+        showException($e);
+        exit(1);
+    } else {
+        throw $e;
+    }
+}
+
+//if all fine - run post-trigger
+
+try {
+    $executor->finish($action, $options);
+    showResult($executor->getOutput());
+} catch (Exception $e) {
+    if (DIRECT){
+        showException($e);
+        exit(1);
+    } else {
+        throw $e;
+    }
+}
+
+exit(0);

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<extension>
+    <id>tims_catalog</id>
+    <version>1.0.0</version>
+    <type>extension</type>
+    <category>extension</category>
+    <cartversions>
+        <item>2.0</item>
+    </cartversions>
+    <priority>10</priority>
+    <settings>
+
+    </settings>
+    <install>
+        <sql></sql>
+        <trigger>install.php</trigger>
+    </install>
+    <uninstall>
+        <sql></sql>
+        <trigger>uninstall.php</trigger>
+    </uninstall>
+</extension>

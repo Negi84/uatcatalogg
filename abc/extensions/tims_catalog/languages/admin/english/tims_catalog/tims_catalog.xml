@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<definitions>
+	<definition>
+		<key>tims_catalog_name</key>
+		<value><![CDATA[Tims Catalog Extension]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_uplift_id</key>
+		<value><![CDATA[Uplift Category]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_product_type</key>
+		<value><![CDATA[Product Type]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_sites</key>
+		<value><![CDATA[Export to Sites:]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_cost_to_business</key>
+		<value><![CDATA[Cost to Business:]]></value>
+	</definition>
+	<definition>
+		<key>tims_error_sku</key>
+		<value><![CDATA[SKU is required Field. Please Set Unique SKU]]></value>
+	</definition>
+	<definition>
+		<key>tims_error_sku_non_unique</key>
+		<value><![CDATA[SKU is not Unique! <br>These product(s) or one of option value have the same sku:]]></value>
+	</definition>
+	<definition>
+		<key>tims_error_cost</key>
+		<value><![CDATA[Please Set Cost Value]]></value>
+	</definition>
+	<definition>
+		<key>tims_error_manufacturer</key>
+		<value><![CDATA[Please Set Manufacturer]]></value>
+	</definition>
+	<definition>
+		<key>title_sites</key>
+		<value><![CDATA[Export to Sites]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_external_url</key>
+		<value><![CDATA[External URL for Product:]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_catalog_only</key>
+		<value><![CDATA[Catalog only:]]></value>
+	</definition>
+	<definition>
+		<key>tims_entry_display_location</key>
+		<value><![CDATA[Location to display product:]]></value>
+	</definition>
+</definitions>

@@ -1,0 +1,117 @@
+body {
+	background: #FFFFFF;
+}
+
+body, td, th, input, select, textarea, option, optgroup {
+	font-family: Arial, Helvetica, Verdana, sans-serif;
+	font-size: 10px;
+	color: #000000;
+}
+
+h1 {
+	color: #00A1CB;
+	font-size: 36px;
+	text-align: center;
+}
+
+.header-img {
+	width: 100%;
+	border: none;
+	height: auto;
+}
+
+.product_logo {
+	float: left;
+	text-align: left;
+}
+
+td.reseller_details {
+	width: 50%;
+}
+
+table.user-details {
+	border: 1px solid #00A1CB;
+	border-spacing: 1px;
+}
+
+table.user-details td {
+	border: 1px solid #00A1CB;
+}
+
+table.user-details .table-heading {
+	text-align: center;
+	font-size: 20px;
+	color: #00A1CB;
+}
+
+table.user-details .label {
+	background-color: #00A1CB;
+	color: white;
+	font-weight: bold;
+	text-align: right;
+	width: 30%;
+}
+
+.footer-text {
+	width: 80%;
+	font-size: 18px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50px;
+}
+
+.footer-img {
+	border: none;
+	float: right;
+	max-height: 250px;
+}
+
+table {
+	margin-left: auto;
+	margin-right: auto;
+	border-spacing: 5px;
+}
+
+td {
+	font-size: 13px;
+	padding: 5px;
+}
+
+.label {
+	color: #000000;
+	font-weight: bold;
+	height: 25px;
+}
+
+.label::after {
+	content: ':';
+}
+
+.value {
+	background-color: lightgrey;
+	color: #000;
+	height: 20px;
+}
+
+.value.big {
+	font-size: 25px;
+}
+
+.heading {
+	height: 80px;
+	vertical-align: bottom;
+	text-align: right;
+}
+
+.heading td {
+	border-bottom: 1px solid lightgrey;
+	font-size: 10px;
+}
+
+.spacer {
+	height: 15px;
+}
+
+.product_details td.label {
+	width: 18%;
+}

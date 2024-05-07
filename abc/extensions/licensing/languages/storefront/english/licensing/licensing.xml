@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions>
+	<definition>
+		<key>licensing_name</key>
+		<value><![CDATA[E-voucher Import and Handling]]></value>
+	</definition>
+	<definition>
+		<key>licensing_order_number</key>
+		<value><![CDATA[Order number]]></value>
+	</definition>
+	<definition>
+		<key>licensing_date</key>
+		<value><![CDATA[Date (YYYY-MM-DD)]]></value>
+	</definition>
+	<definition>
+		<key>licensing_user_details</key>
+		<value><![CDATA[End User Details]]></value>
+	</definition>
+	<definition>
+		<key>licensing_billing_details</key>
+		<value><![CDATA[Billing Details]]></value>
+	</definition>
+	<definition>
+		<key>licensing_reseller_details</key>
+		<value><![CDATA[Reseller Details]]></value>
+	</definition>
+	<definition>
+		<key>licensing_license_details</key>
+		<value><![CDATA[E-voucher Details]]></value>
+	</definition>
+	<definition>
+		<key>licensing_customer_name</key>
+		<value><![CDATA[Name]]></value>
+	</definition>
+	<definition>
+		<key>licensing_email</key>
+		<value><![CDATA[E-mail Address]]></value>
+	</definition>
+	<definition>
+		<key>licensing_address</key>
+		<value><![CDATA[Address]]></value>
+	</definition>
+	<definition>
+		<key>licensing_customer_phone</key>
+		<value><![CDATA[Phone Number]]></value>
+	</definition>
+	<definition>
+		<key>licensing_reseller_contact</key>
+		<value><![CDATA[Contact Person]]></value>
+	</definition>
+	<definition>
+		<key>licensing_product_name</key>
+		<value><![CDATA[Solution / SKU]]></value>
+	</definition>
+	<definition>
+		<key>licensing_quantity</key>
+		<value><![CDATA[Protected Devices<br>/ Devices Number]]></value>
+	</definition>
+	<definition>
+		<key>licensing_order_date</key>
+		<value><![CDATA[Purchase Date<br/>(YYYY-MM-DD)]]></value>
+	</definition>
+	<definition>
+		<key>licensing_validity_period</key>
+		<value><![CDATA[Validity Period]]></value>
+	</definition>
+	<definition>
+		<key>licensing_keys</key>
+		<value><![CDATA[E-voucher code(s)]]></value>
+	</definition>
+	<definition>
+		<key>licensing_footer_text</key>
+		<value><![CDATA[The present certificate gives you the right to use the E-voucher as established in the legal terms and conditions of the End User License Agreement that
+accompanies each Software Product. PLEASE READ THE AGREEMENT CAREFULLY. IF YOU DO NOT AGREE TO THE TERMS AND CONDITIONS DO NOT
+USE THE SOFTWARE OR INITIATE THE SERVICES. BY SELECTING "I ACCEPT", "OK", "CONTINUE", "YES" OR BY USING THE SOFTWARE OR THE SERVICES IN
+ANY WAY, YOU (EITHER AN INDIVIDUAL OR A SINGLE ENTITY) ARE INDICATING YOUR COMPLETE UNDERSTANDING AND ACCEPTANCE OF THE TERMS OF
+THE AGREEMENT. IF YOU DO NOT AGREE TO ALL OF THE TERMS, SELECT THE REJECTING OPTION AND DO NOT INSTALL, USE OR COPY THE SOFTWARE
+OR SERVICES.
+If the E-voucher is downloaded or the Service initiated from  website (for paid or trial use purposes), the Agreement in your purchased product will be accepted and
+a contract will be effective when you or your representative selects "I accept", "I agree", "OK" or "Yes" button prior to download or installation.]]></value>
+	</definition>
+	<definition>
+		<key>licensing_get_certificate</key>
+		<value><![CDATA[E-voucher]]></value>
+	</definition>
+</definitions>

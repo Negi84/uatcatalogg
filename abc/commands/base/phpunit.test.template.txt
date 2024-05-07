@@ -1,0 +1,18 @@
+<?php
+namespace abc\tests\unit;
+
+/**
+ * Class %s
+ */
+class %s extends ATestCase{
+
+
+    protected function setUp(){
+        //init
+    }
+
+    public function testSomething1(){
+        //$result = runsome();
+        //$this::assertEquals($result, array());
+    }
+}

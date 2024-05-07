@@ -1,0 +1,9 @@
+{
+  "name": "licensing/licensing",
+  "description": "3d party vendor libs",
+  "type": "library",
+  "require": {
+    "mpdf/mpdf": "8.0.15",
+    "psr/log": "1.1.4"
+  }
+}

@@ -1,0 +1,176 @@
+<?php
+
+namespace abc\models\catalog;
+
+use abc\core\engine\Registry;
+use abc\models\BaseModel;
+use abc\models\locale\Language;
+use Exception;
+use H;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * Class UrlAlias
+ *
+ * @property int $url_alias_id
+ * @property string $query
+ * @property string $keyword
+ * @property int $language_id
+ *
+ * @property Language $language
+ *
+ * @package abc\models
+ */
+class UrlAlias extends BaseModel
+{
+    protected $primaryKey = 'url_alias_id';
+
+    protected $casts = [
+        'language_id' => 'int',
+    ];
+
+    protected $fillable = [
+        'query',
+        'keyword',
+        'language_id',
+    ];
+    protected $rules = [
+        /** @see validate() */
+        'language_id' => [
+            'checks' => [
+                'integer',
+                'required',
+                'exists:languages',
+                'min:0',
+                'max:2147483647'
+            ],
+            'messages' => [
+                'integer' => ['default_text' => 'Language ID is not Integer!'],
+                'exists' => ['default_text' => 'Language ID absent in languages table!'],
+                'max' => ['default_text' => 'Language ID must be less than 2147483647'],
+                'min' => ['default_text' => 'Language ID value must be greater than zero'],
+                'required' => ['default_text' => 'Language ID required']
+            ],
+        ],
+    ];
+    public function language()
+    {
+        return $this->belongsTo(Language::class, 'language_id');
+    }
+
+    /**
+     * @param string $name
+     * @param int    $id
+     *
+     * @return array
+     */
+    public static function getKeyWordsArray(string $name, $id)
+    {
+        $result = self::select(['language_id', 'keyword'])
+                       ->where('query', '=', $name ."=".(int)$id)
+                       ->get();
+        return $result->toArray();
+    }
+
+    /**
+     * @param string $query
+     * @param int $language_id
+     *
+     * @return string
+     */
+    private static function getKeyWord(string $query, int $language_id)
+    {
+        $keyword = self::select('keyword')
+                       ->where('query', '=', $query)
+                       ->where('language_id', '=', $language_id)
+                       ->first();
+        if ($keyword && isset($keyword->toArray()['keyword'])) {
+            return $keyword->toArray()['keyword'];
+        }
+        return '';
+    }
+
+    public static function getProductKeyword(int $productId, int $languageId)
+    {
+        return self::getKeyWord('product_id='.$productId, $languageId);
+    }
+
+    public static function getCategoryKeyword(int $categoryId, $languageId)
+    {
+        return self::getKeyWord('category_id='.$categoryId, $languageId);
+    }
+
+    public static function getManufacturerKeyword(int $manufacturerId, int $languageId)
+    {
+        return self::getKeyWord('manufacturer_id='.$manufacturerId, $languageId);
+    }
+
+    private static function setKeyword(string $keyword, string $objectKeyName, int $objectId)
+    {
+        $keyword = H::SEOEncode($keyword, $objectKeyName, $objectId);
+
+        if ($keyword) {
+            Registry::language()->replaceDescriptions(
+                'url_aliases',
+                ['query' => $objectKeyName."=".$objectId],
+                [static::$current_language_id => ['keyword' => $keyword]]);
+        } else {
+            static::where('query', '=', $objectKeyName . "=" . $objectId)
+                ->where('language_id', '=', static::$current_language_id)
+                ->delete();
+        }
+    }
+
+    /**
+     * @param string $keyword
+     * @param Product|BaseModel|int $product - Product Model or Product ID
+     */
+    public static function setProductKeyword(string $keyword, $product)
+    {
+        if (!$product instanceof BaseModel) {
+            $product = Product::find($product);
+        }
+        $productId = $product->getKey();
+        self::setKeyword($keyword, 'product_id', $productId);
+    }
+
+    public static function setCategoryKeyword(string $keyword, int $categoryId)
+    {
+        self::setKeyword($keyword, 'category_id', $categoryId);
+    }
+
+    public static function setManufacturerKeyword(string $keyword, int $manufacturerId)
+    {
+        self::setKeyword($keyword, 'manufacturer_id', $manufacturerId);
+    }
+
+    public static function setContentKeyword(string $keyword, int $contentId)
+    {
+        self::setKeyword($keyword, 'content_id', $contentId);
+    }
+
+    /**
+     * @param array $data - ['language_id' => 1, 'keyword' => 'some-keyword']
+     * @param string $name - 'product_id', 'category_id' etc
+     * @param int $id
+     *
+     * @throws Exception
+     */
+    public static function replaceKeywords($data, $name, $id)
+    {
+        $data = (array)$data;
+        $id = (int)$id;
+        $name = (string)$name;
+
+        $query = $name . '=' . $id;
+        static::where('query', '=', $query)->delete();
+
+        foreach ($data as $keyword) {
+            $urlAlias = new UrlAlias();
+            $urlAlias->query = $query;
+            $urlAlias->language_id = (int)$keyword['language_id'];
+            $urlAlias->keyword = H::SEOEncode($keyword['keyword'], $name, $id);
+            $urlAlias->save();
+        }
+    }
+}

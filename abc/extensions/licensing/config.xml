@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+	<id>licensing</id>
+	<version>2.0.0</version>
+	<type>extension</type>
+	<category>Integrations</category>
+	<cartversions>
+		<item>2.0</item>
+	</cartversions>
+	<priority>10</priority>
+	<dependencies></dependencies>
+	<settings>
+	</settings>
+	<install>
+		<sql>install.sql</sql>
+		<trigger>install.php</trigger>
+	</install>
+	<uninstall>
+		<sql>uninstall.sql</sql>
+		<trigger>uninstall.php</trigger>
+	</uninstall>
+	<help_link><![CDATA[http://www.algozone.com/docs/abantecart-licenses/]]></help_link>
+</extension>

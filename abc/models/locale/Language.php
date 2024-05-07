@@ -1,0 +1,541 @@
+<?php
+/*------------------------------------------------------------------------------
+  $Id$
+
+  AbanteCart, Ideal OpenSource Ecommerce Solution
+  http://www.AbanteCart.com
+
+  Copyright © 2011-2022 Belavier Commerce LLC
+
+  This source file is subject to Open Software License (OSL 3.0)
+  License details is bundled with this package in the file LICENSE.txt.
+  It is also available at this URL:
+  <http://www.opensource.org/licenses/OSL-3.0>
+
+ UPGRADE NOTE:
+   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+   versions in the future. If you wish to customize AbanteCart for your
+   needs please refer to http://www.AbanteCart.com for more information.
+------------------------------------------------------------------------------*/
+
+namespace abc\models\locale;
+
+use abc\extensions\banner_manager\models\BannerDescription;
+use abc\models\BaseModel;
+use abc\models\catalog\CategoryDescription;
+use abc\models\catalog\DownloadDescription;
+use abc\models\catalog\GlobalAttributesDescription;
+use abc\models\catalog\GlobalAttributesValueDescription;
+use abc\models\catalog\ProductDescription;
+use abc\models\catalog\ProductOptionDescription;
+use abc\models\catalog\ProductOptionValueDescription;
+use abc\models\catalog\ProductTag;
+use abc\models\catalog\ResourceDescription;
+use abc\models\catalog\StockStatus;
+use abc\models\catalog\UrlAlias;
+use abc\models\content\ContentDescription;
+use abc\models\layout\BlockDescription;
+use abc\models\layout\PageDescription;
+use abc\models\order\CouponDescription;
+use abc\models\order\Order;
+use abc\models\order\OrderDataType;
+use abc\models\order\OrderStatusDescription;
+use abc\models\system\FieldDescription;
+use abc\models\system\FieldsGroupDescription;
+use abc\models\system\FormDescription;
+use abc\models\system\StoreDescription;
+use abc\models\system\TaxClassDescription;
+use abc\models\system\TaxRateDescription;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * Class Language
+ *
+ * @property int $language_id
+ * @property string $name
+ * @property string $code
+ * @property string $locale
+ * @property string $image
+ * @property string $directory
+ * @property string $filename
+ * @property int $sort_order
+ * @property int $status
+ *
+ * @property Collection $banner_descriptions
+ * @property Collection $block_descriptions
+ * @property Collection $category_descriptions
+ * @property Collection $content_descriptions
+ * @property Collection $country_descriptions
+ * @property Collection $coupon_descriptions
+ * @property Collection $download_descriptions
+ * @property Collection $field_descriptions
+ * @property Collection $fields_group_descriptions
+ * @property Collection $form_descriptions
+ * @property Collection $global_attributes_descriptions
+ * @property Collection $global_attributes_value_descriptions
+ * @property Collection $language_definitions
+ * @property Collection $length_class_descriptions
+ * @property Collection $order_data_types
+ * @property Collection $order_status_descriptions
+ * @property Collection $orders
+ * @property Collection $page_descriptions
+ * @property Collection $product_descriptions
+ * @property Collection $product_option_descriptions
+ * @property Collection $product_option_value_descriptions
+ * @property Collection $product_tags
+ * @property Collection $resource_descriptions
+ * @property Collection $stock_statuses
+ * @property Collection $store_descriptions
+ * @property Collection $tax_class_descriptions
+ * @property Collection $tax_rate_descriptions
+ * @property Collection $url_aliases
+ * @property Collection $weight_class_descriptions
+ * @property Collection $zone_descriptions
+ *
+ * @method static Language find(int $language_id) Language
+ * @method static Language select(mixed $select) Builder
+ * @package abc\models
+ */
+class Language extends BaseModel
+{
+    use SoftDeletes, CascadeSoftDeletes;
+
+    //Note: list of related model for cascade deleting to except Orders
+    protected $cascadeDeletes = [
+        'banner_descriptions',
+        'block_descriptions',
+        'category_descriptions',
+        'content_descriptions',
+        'country_descriptions',
+        'coupon_descriptions',
+        'download_descriptions',
+        'field_descriptions',
+        'fields_group_descriptions',
+        'form_descriptions',
+        'global_attributes_descriptions',
+        'global_attributes_value_descriptions',
+        'definitions',
+        'length_class_descriptions',
+        'order_status_descriptions',
+        'page_descriptions',
+        'product_descriptions',
+        'product_option_descriptions',
+        'product_option_value_descriptions',
+        'product_tags',
+        'resource_descriptions',
+        'stock_statuses',
+        'store_descriptions',
+        'tax_class_descriptions',
+        'tax_rate_descriptions',
+        'url_aliases',
+        'weight_class_descriptions',
+        'zone_descriptions',
+        'product_type_descriptions',
+    ];
+    protected $primaryKey = 'language_id';
+    public $timestamps = false;
+
+    protected $casts = [
+        'sort_order' => 'int',
+        'status'     => 'int',
+    ];
+
+    protected $fillable = [
+        'language_id',
+        'name',
+        'code',
+        'locale',
+        'image',
+        'directory',
+        'filename',
+        'sort_order',
+        'status',
+
+    ];
+    protected $rules = [
+        'language_id' => [
+            'checks' => [
+                'integer',
+                'required',
+                'sometimes',
+                'min:1',
+                'max:2147483647'
+            ],
+
+            'messages' => [
+                'integer'  => [
+                    'language_key'   => 'error_language_id',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'language id must be integer!',
+                    'section'        => 'admin'
+                ],
+                'required' => [
+                    'language_key'   => 'error_language_id',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'language id required!',
+                    'section'        => 'admin'
+                ],
+                'min'      => [
+                    'language_key'   => 'error_language_id',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'language id must be more 1!',
+                    'section'        => 'admin'
+                ],
+                'max' => ['default_text' => 'Language ID must be less than 2147483647']
+
+            ],
+        ],
+        'name'        => [
+            'checks'   => [
+                'string',
+                'required',
+                'sometimes',
+                'min:2',
+                'max:32'
+            ],
+            'messages' => [
+                'min'      => [
+                    'language_key'   => 'error_name',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Name must be more 2 characters',
+                    'section'        => 'admin'
+                ],
+                'max'      => [
+                    'language_key'   => 'error_name',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Name must be no more than 32 characters',
+                    'section'        => 'admin'
+                ],
+                'required' => [
+                    'language_key'   => 'error_name',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'name required!',
+                    'section'        => 'admin'
+                ],
+                'string'   => [
+                    'language_key'   => 'error_name',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'name must be string!',
+                    'section'        => 'admin'
+                ],
+            ]
+        ],
+        'code'        => [
+            'checks'   => [
+                'string',
+                'required',
+                'sometimes',
+                'max:2'
+            ],
+            'messages' => [
+                'max'      => [
+                    'language_key'   => 'error_code',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Language Code must be at least 2 characters!',
+                    'section'        => 'admin'
+                ],
+                'string'   => [
+                    'language_key'   => 'error_code',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Language Code must be string!',
+                    'section'        => 'admin'
+                ],
+                'required' => [
+                    'language_key'   => 'error_code',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Language Code required!',
+                    'section'        => 'admin'
+                ]
+            ]
+        ],
+        'locale'      => [
+            'checks'   => [
+                'string',
+                'required',
+                'sometimes',
+                'max:255'
+            ],
+            'messages' => [
+                'max'      => [
+                    'language_key'   => 'error_locale',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Locale must be at least 255 characters!',
+                    'section'        => 'admin'
+                ],
+                'string'   => [
+                    'language_key'   => 'error_locale',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Locale Code must be string!',
+                    'section'        => 'admin'
+                ],
+                'required' => [
+                    'language_key'   => 'error_locale',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Locale required!',
+                    'section'        => 'admin'
+                ]
+            ]
+        ],
+        'image'       => [
+            'checks'   => [
+                'string',
+                'min:2',
+                'max:64'
+            ],
+            'messages' => [
+                'max'    => [
+                    'language_key'   => 'error_image',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Image must be at least 64 characters!',
+                    'section'        => 'admin'
+                ],
+                'string' => [
+                    'language_key'   => 'error_image',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Image Code must be string!',
+                    'section'        => 'admin'
+                ],
+                'min'    => [
+                    'language_key'   => 'error_image',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'Image must be more 2 characters!',
+                    'section'        => 'admin'
+                ]
+            ]
+        ],
+        'directory'   => [
+            'checks'   => [
+                'string',
+                'sometimes',
+                'required',
+            ],
+            'messages' => [
+                'string'   => [
+                    'language_key'   => 'error_directory',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'directory must be string!',
+                    'section'        => 'admin'
+                ],
+                'required' => [
+                    'language_key'   => 'error_directory',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'directory required!',
+                    'section'        => 'admin'
+                ]
+            ]
+        ],
+        'filename'    => [
+            'checks'   => [
+                'string',
+                'min:2',
+                'max:64'
+            ],
+            'messages' => [
+                'max'    => [
+                    'language_key'   => 'error_filename',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'filename must be at least 64 characters!',
+                    'section'        => 'admin'
+                ],
+                'string' => [
+                    'language_key'   => 'error_filename',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'filename Code must be string!',
+                    'section'        => 'admin'
+                ],
+                'min'    => [
+                    'language_key'   => 'error_filename',
+                    'language_block' => 'localisation/language',
+                    'default_text'   => 'filename must be more 2 characters!',
+                    'section'        => 'admin'
+                ]
+            ]
+        ],
+        'sort_order' => [
+            'checks' => [
+                'integer',
+                'sometimes',
+                'min:0',
+                'max:2147483647'
+            ],
+            'messages' => [
+                'integer' => ['default_text' => 'sort_order is not integer'],
+                'min' => ['default_text' => 'sort_order must be greater than zero'],
+                'max' => ['default_text' => 'sort_order must be less than 2147483647']
+            ],
+        ],
+        'status' => [
+            'checks' => [
+                'integer',
+                'min:0',
+                'max:2147483647'
+            ],
+            'messages' => [
+                'integer' => ['default_text' => 'status is not integer'],
+                'min' => ['default_text' => 'status must be greater than zero'],
+                'max' => ['default_text' => 'status must be less than 2147483647']
+            ],
+        ]
+    ];
+
+    public function block_descriptions()
+    {
+        return $this->hasMany(BlockDescription::class, 'language_id');
+    }
+
+    public function category_descriptions()
+    {
+        return $this->hasMany(CategoryDescription::class, 'language_id');
+    }
+
+    public function content_descriptions()
+    {
+        return $this->hasMany(ContentDescription::class, 'language_id');
+    }
+
+    public function country_descriptions()
+    {
+        return $this->hasMany(CountryDescription::class, 'language_id');
+    }
+
+    public function coupon_descriptions()
+    {
+        return $this->hasMany(CouponDescription::class, 'language_id');
+    }
+
+    public function download_descriptions()
+    {
+        return $this->hasMany(DownloadDescription::class, 'language_id');
+    }
+
+    public function field_descriptions()
+    {
+        return $this->hasMany(FieldDescription::class, 'language_id');
+    }
+
+    public function fields_group_descriptions()
+    {
+        return $this->hasMany(FieldsGroupDescription::class, 'language_id');
+    }
+
+    public function form_descriptions()
+    {
+        return $this->hasMany(FormDescription::class, 'language_id');
+    }
+
+    public function global_attributes_descriptions()
+    {
+        return $this->hasMany(GlobalAttributesDescription::class, 'language_id');
+    }
+
+    public function global_attributes_value_descriptions()
+    {
+        return $this->hasMany(GlobalAttributesValueDescription::class, 'language_id');
+    }
+
+    public function definitions()
+    {
+        return $this->hasMany(LanguageDefinition::class, 'language_id');
+    }
+
+    public function length_class_descriptions()
+    {
+        return $this->hasMany(LengthClassDescription::class, 'language_id');
+    }
+
+    public function order_data_types()
+    {
+        return $this->hasMany(OrderDataType::class, 'language_id');
+    }
+
+    public function order_status_descriptions()
+    {
+        return $this->hasMany(OrderStatusDescription::class, 'language_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'language_id');
+    }
+
+    public function page_descriptions()
+    {
+        return $this->hasMany(PageDescription::class, 'language_id');
+    }
+
+    public function product_descriptions()
+    {
+        return $this->hasMany(ProductDescription::class, 'language_id');
+    }
+
+    public function product_option_descriptions()
+    {
+        return $this->hasMany(ProductOptionDescription::class, 'language_id');
+    }
+
+    public function product_option_value_descriptions()
+    {
+        return $this->hasMany(ProductOptionValueDescription::class, 'language_id');
+    }
+
+    public function product_tags()
+    {
+        return $this->hasMany(ProductTag::class, 'language_id');
+    }
+
+    public function resource_descriptions()
+    {
+        return $this->hasMany(ResourceDescription::class, 'language_id');
+    }
+
+    public function stock_statuses()
+    {
+        return $this->hasMany(StockStatus::class, 'language_id');
+    }
+
+    public function store_descriptions()
+    {
+        return $this->hasMany(StoreDescription::class, 'language_id');
+    }
+
+    public function tax_class_descriptions()
+    {
+        return $this->hasMany(TaxClassDescription::class, 'language_id');
+    }
+
+    public function tax_rate_descriptions()
+    {
+        return $this->hasMany(TaxRateDescription::class, 'language_id');
+    }
+
+    public function url_aliases()
+    {
+        return $this->hasMany(UrlAlias::class, 'language_id');
+    }
+
+    public function weight_class_descriptions()
+    {
+        return $this->hasMany(WeightClassDescription::class, 'language_id');
+    }
+
+    public function zone_descriptions()
+    {
+        return $this->hasMany(ZoneDescription::class, 'language_id');
+    }
+
+    public function product_type_descriptions()
+    {
+        return $this->hasMany(ProductDescription::class, 'language_id');
+    }
+
+    public static function getCodeById($language_id)
+    {
+        $language = static::find($language_id);
+        if (!$language) {
+            return false;
+        }
+        return $language->code;
+    }
+}

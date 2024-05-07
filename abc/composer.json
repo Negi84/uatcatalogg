@@ -1,0 +1,363 @@
+{
+  "name": "abantecart/abantecart",
+  "type": "project",
+  "description": "AbanteCart",
+  "keywords": [
+    "abantecart",
+    "ecommerce",
+    "framework",
+    "opensource"
+  ],
+  "homepage": "http://www.abantecart.com",
+  "license": "OSL-3.0",
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "components/jquery",
+        "version": "3.3.1",
+        "dist": {
+          "url": "https://code.jquery.com/jquery-3.3.1.min.js",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/jquery-migrate",
+        "version": "3.0.1",
+        "dist": {
+          "url": "https://code.jquery.com/jquery-migrate-3.0.1.min.js",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/jqueryui",
+        "version": "1.12.1",
+        "dist": {
+          "url": "https://github.com/components/jqueryui/archive/1.12.1.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/jqgrid",
+        "version": "5.3.1",
+        "dist": {
+          "url": "https://github.com/tonytomov/jqGrid/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "css/bootstrap4c-chosen",
+        "version": "1.0.8",
+        "dist": {
+          "url": "https://github.com/haubek/bootstrap4c-chosen/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/bootstrap",
+        "version": "4.1.0",
+        "dist": {
+          "url": "https://github.com/components/bootstrap/archive/4.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/popper",
+        "version": "1.4.13",
+        "dist": {
+          "url": "https://unpkg.com/popper.js/dist/umd/popper.min.js",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/jquery-cookie",
+        "version": "2.2.0",
+        "dist": {
+          "url": "https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/font-awesome",
+        "version": "5.0.x-dev",
+        "dist": {
+          "url": "https://github.com/components/font-awesome/archive/5.0.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "blueimp/jquery-file-upload",
+        "version": "9.21.0",
+        "dist": {
+          "url": "https://github.com/vkhramtsov/jQuery-File-Upload/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "drmonty/animate.css",
+        "version": "3.5.2",
+        "dist": {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "kartik-v/bootstrap-fileinput",
+        "version": "dev-master",
+        "dist": {
+          "url": "https://github.com/kartik-v/bootstrap-fileinput/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/chosen",
+        "version": "1.8.5",
+        "dist": {
+          "url": "https://github.com/harvesthq/chosen/releases/download/v1.8.5/chosen_v1.8.5.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "tinymce/tinymce",
+        "version": "6.8.3",
+        "dist": {
+          "url": "https://github.com/tinymce/tinymce-dist/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/modernizr",
+        "version": "3.5.0",
+        "dist": {
+          "url": "https://github.com/components/modernizr/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/chart",
+        "version": "2.7.2",
+        "dist": {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js",
+          "type": "file"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "components/intl-tel-input",
+        "version": "12.1.13",
+        "dist": {
+          "url": "https://github.com/jackocnr/intl-tel-input/archive/master.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+        "type": "git",
+        "url": "https://github.com/abolabo/php-abac.git"
+    },
+    {
+        "type": "git",
+        "url": "https://github.com/abolabo/laravel-relationship-events.git"
+    }
+  ],
+  "require": {
+    "php": "8.1.*",
+    "ext-zlib": "*",
+    "ext-zip": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "ext-gd": "*",
+    "ext-phar": "*",
+    "ext-bcmath": "*",
+    "ext-curl": "*",
+    "ext-fileinfo": "*",
+    "ext-libxml": "*",
+    "ext-xmlwriter": "*",
+    "mnsami/composer-custom-directory-installer": "2.0.*",
+    "wikimedia/composer-merge-plugin": "dev-master",
+    "psr/http-message": "1.0.1",
+    "google/recaptcha": "1.2.4",
+    "components/jquery": "3.3.1",
+    "components/jqueryui": "1.12.1",
+    "components/jquery-migrate": "3.0.1",
+    "components/jqgrid": "5.3.1",
+    "components/jquery-cookie": "2.2.0",
+    "components/popper": "1.4.13",
+    "components/modernizr": "3.5.0",
+    "components/font-awesome": "5.0.x-dev",
+    "blueimp/jquery-file-upload": "9.21.0",
+    "drmonty/animate.css": "3.5.2",
+    "kartik-v/bootstrap-fileinput": "dev-master",
+    "components/bootstrap": "4.1.0",
+    "components/chosen": "1.8.5",
+    "components/intl-tel-input": "12.1.13",
+    "css/bootstrap4c-chosen": "1.0.8",
+    "components/chart": "2.7.2",
+    "tinymce/tinymce": "6.8.3",
+    "robmorgan/phinx": "0.13.4",
+    "twig/twig": ">=3.4.3",
+    "wapmorgan/unified-archive": "1.1.3",
+    "symfony/console": "5.4.1",
+    "symfony/debug": "4.4.31",
+    "symfony/var-dumper": "5.4.1",
+    "maximebf/debugbar": "1.17.3",
+    "filp/whoops": "2.14.4",
+    "monolog/monolog": "2.3.5",
+    "illuminate/database": "8.76.2",
+    "illuminate/events": "8.76.2",
+    "illuminate/validation": "8.76.2",
+    "krlove/eloquent-model-generator": "1.3.8",
+    "illuminate/cache": "8.76.2",
+    "illuminate/redis": "8.76.2",
+    "craftcamp/php-abac": "dev-dev-abc",
+    "chelout/laravel-relationship-events": "dev-abc-php8.1",
+    "laracasts/utilities": "3.2",
+    "dyrynda/laravel-cascade-soft-deletes": "4.1.0",
+    "koolphp/koolreport": "3.25.4",
+    "dyrynda/laravel-model-uuid": "6.5.0",
+    "php-amqplib/php-amqplib": "3.1.1",
+    "vdvpie22/audit-log-client": "^1.9",
+    "mustache/mustache": "2.14.1",
+    "zircote/swagger-php": "^4.4",
+    "ext-dom": "*",
+    "ext-simplexml": "*",
+    "aws/aws-sdk-php": "3.300.7"
+  },
+  "extra": {
+    "installer-paths": {
+      "./vendor/google/recaptcha": [
+        "google/recaptcha"
+      ],
+      "./vendor/assets/components/jquery": [
+        "components/jquery"
+      ],
+      "./vendor/assets/components/jquery-migrate": [
+        "components/jquery-migrate"
+      ],
+      "./vendor/assets/components/jqueryui": [
+        "components/jqueryui"
+      ],
+      "./vendor/assets/components/jquery-cookie": [
+        "components/jquery-cookie"
+      ],
+      "./vendor/assets/components/jqgrid": [
+        "components/jqgrid"
+      ],
+      "./vendor/assets/components/bootstrap": [
+        "components/bootstrap"
+      ],
+      "./vendor/assets/components/popper": [
+        "components/popper"
+      ],
+      "./vendor/assets/components/modernizr": [
+        "components/modernizr"
+      ],
+      "./vendor/assets/css/font-awesome": [
+        "components/font-awesome"
+      ],
+      "./vendor/assets/components/jquery-file-upload": [
+        "blueimp/jquery-file-upload"
+      ],
+      "./vendor/assets/components/bootstrap-fileinput": [
+        "kartik-v/bootstrap-fileinput"
+      ],
+      "./vendor/assets/components/chart": [
+        "components/chart"
+      ],
+      "./vendor/assets/css/animate.css": [
+        "drmonty/animate.css"
+      ],
+      "./vendor/assets/css/bootstrap4c-chosen": [
+        "css/bootstrap4c-chosen"
+      ],
+      "./vendor/assets/components/chosen": [
+        "components/chosen"
+      ],
+      "./vendor/assets/components/intl-tel-input": [
+        "components/intl-tel-input"
+      ],
+      "./vendor/assets/tinymce/tinymce": [
+        "tinymce/tinymce"
+      ],
+      "./vendor/assets/maximebf/debugbar": [
+        "maximebf/debugbar"
+      ]
+
+    },
+    "merge-plugin": {
+        "include": [
+          "extensions/*/composer.json"
+        ],
+        "recurse": true,
+        "replace": false,
+        "ignore-duplicates": false,
+        "merge-dev": true,
+        "merge-extra": false,
+        "merge-extra-deep": false,
+        "merge-replace": true,
+        "merge-scripts": false
+      }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "9.5.10",
+    "ext-pdo": "*"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "mnsami/composer-custom-directory-installer": true,
+      "wikimedia/composer-merge-plugin": true
+    }
+  }
+}

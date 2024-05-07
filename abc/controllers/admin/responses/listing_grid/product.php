@@ -1,0 +1,551 @@
+<?php
+/**
+ * AbanteCart, Ideal Open Source Ecommerce Solution
+ * https://www.abantecart.com
+ *
+ * Copyright (c) 2011-2023  Belavier Commerce LLC
+ *
+ * This source file is subject to Open Software License (OSL 3.0)
+ * License details is bundled with this package in the file LICENSE.txt.
+ * It is also available at this URL:
+ * <https://www.opensource.org/licenses/OSL-3.0>
+ *
+ * UPGRADE NOTE:
+ * Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ * versions in the future. If you wish to customize AbanteCart for your
+ * needs please refer to https://www.abantecart.com for more information.
+ */
+
+namespace abc\controllers\admin;
+
+use abc\core\engine\AController;
+use abc\core\engine\AResource;
+use abc\core\engine\Registry;
+use abc\core\lib\AError;
+use abc\core\lib\AException;
+use abc\core\lib\AJson;
+use abc\models\casts\NullableInt;
+use abc\models\catalog\Product;
+use abc\models\catalog\ProductDescription;
+use abc\models\catalog\ProductDiscount;
+use abc\models\catalog\ProductSpecial;
+use abc\models\QueryBuilder;
+use Exception;
+use H;
+use Illuminate\Validation\ValidationException;
+use Psr\SimpleCache\InvalidArgumentException;
+use ReflectionException;
+use stdClass;
+
+
+class ControllerResponsesListingGridProduct extends AController
+{
+    public $error = [];
+    public function main()
+    {
+        $page = (int)$this->request->post['page'] ?: 1;
+        $limit = $this->request->post['rows'];
+        $sort = $this->request->post['sidx'];
+        $order = $this->request->post['sord'];
+
+        $this->data['search_parameters'] = [
+            'filter'      => [
+                'keyword_search_parameters' => [
+                    'match'     => 'all',
+                    'search_by' => [
+                        'name',
+                        'model',
+                        'sku'
+                    ]
+                ]
+            ],
+            'language_id' => $this->language->getContentLanguageID(),
+            'start'       => ($page - 1) * $limit,
+            'limit'       => $limit,
+            'sort'        => $sort,
+            'order'       => $order
+        ];
+
+        $get = $this->request->get;
+        if (isset($get['keyword'])) {
+            $this->data['search_parameters']['filter']['keyword'] = (string)$get['keyword'];
+        }
+        if (isset($get['price_from'])) {
+            $this->data['search_parameters']['filter']['price_from'] = (float)$get['price_from'];
+        }
+        if (isset($get['price_to'])) {
+            $this->data['search_parameters']['filter']['price_to'] = (float)$get['price_to'];
+        }
+        if (isset($get['category_id']) && $get['category_id'] > 0) {
+            $this->data['search_parameters']['filter']['category_id'] = (int)$get['category_id'];
+        }
+        if (isset($get['match'])) {
+            $this->data['search_parameters']['filter']['keyword_search_parameters']['match'] = $get['match'];
+        }
+        if (isset($get['status']) && $get['status'] !== '') {
+            $this->data['search_parameters']['filter']['status'] = (int)$get['status'];
+        }
+
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        $this->loadLanguage('catalog/product');
+        $this->loadModel('tool/image');
+
+
+        $results = Product::getProducts($this->data['search_parameters']);
+        //push result into public scope to get access from extensions
+        $this->data['results'] = $results;
+        /** @see QueryBuilder::get() */
+        $total = $results::getFoundRowsCount();
+        $total_pages = $total > 0 ? ceil($total / $limit) : 0;
+        $response = new stdClass();
+        $response->page = $page;
+        $response->total = $total_pages;
+        $response->records = $total;
+        $response->userdata = (object)[''];
+        $response->userdata->classes = [];
+
+        $product_ids = $results?->pluck('product_id')->toArray();
+
+        $resource = new AResource('image');
+        $thumbnails = $resource->getMainThumbList(
+            'products',
+            $product_ids,
+            $this->config->get('config_image_grid_width'),
+            $this->config->get('config_image_grid_height')
+        );
+        $i = 0;
+        foreach ($results as $result) {
+            $thumbnail = $thumbnails[$result['product_id']];
+
+            $response->rows[$i]['id'] = $result['product_id'];
+            if (H::dateISO2Int($result['date_available']) > time()) {
+                $response->userdata->classes[$result['product_id']] = 'warning';
+            }
+
+            if ($result['call_to_order'] > 0) {
+                $price = $this->language->get('text_call_to_order');
+            } else {
+                $price = $this->html->buildInput(
+                    [
+                        'name'  => 'price[' . $result['product_id'] . ']',
+                        'value' => H::moneyDisplayFormat($result['price']),
+                    ]
+                );
+            }
+
+            $response->rows[$i]['cell'] = [
+                $thumbnail['thumb_html'],
+                $this->html->buildInput(
+                    [
+                        'name' => 'name[' . $result['product_id'] . ']',
+                        'value' => $result['name'],
+                    ]
+                ),
+                $this->html->buildInput(
+                    [
+                        'name'  => 'model[' . $result['product_id'] . ']',
+                        'value' => $result['model'],
+                    ]
+                ),
+                $price,
+                (int)$result['quantity'],
+                $this->html->buildCheckbox(
+                    [
+                        'name'  => 'status[' . $result['product_id'] . ']',
+                        'value' => $result['status'],
+                        'style' => 'btn_switch',
+                    ]
+                ),
+            ];
+            $i++;
+        }
+        $this->data['response'] = $response;
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+        $this->response->setOutput(AJson::encode($this->data['response']));
+    }
+
+    public function update()
+    {
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        if (!$this->user->canModify('listing_grid/product')) {
+            $error = new AError('');
+            $error->toJSONResponse('NO_PERMISSIONS_403',
+                [
+                    'error_text'  => sprintf($this->language->get('error_permission_modify'), 'listing_grid/product'),
+                    'reset_value' => true,
+                ]
+            );
+            return;
+        }
+
+        $this->loadLanguage('catalog/product');
+
+        switch ($this->request->post['oper']) {
+            case 'del':
+                $ids = array_unique(explode(',', $this->request->post['id']));
+                if ($ids) {
+                    $this->db->beginTransaction();
+                    try {
+                        foreach ($ids as $id) {
+                            $err = $this->validateDelete($id);
+                            if ($err) {
+                                $error = new AError('');
+                                $error->toJSONResponse(
+                                    'VALIDATION_ERROR_406',
+                                    [
+                                        'error_text' => $err
+                                    ]
+                                );
+                                return;
+                            }
+                            $product = Product::with('categories')->find($id);
+                            if ($product) {
+                                $this->extensions->hk_ProcessData($this, 'deleting', ['product_id' => $id]);
+                                $categories = $product->categories;
+                                $product->delete();
+                                //run products count recalculation
+                                foreach ($categories as $item) {
+                                    $item->touch();
+                                }
+                            }
+                        }
+                        $this->db->commit();
+                        Registry::cache()->flush('product');
+                    } catch (Exception $e) {
+                        $this->db->rollback();
+                        $error = new AError($e->getMessage());
+                        $error->toLog();
+                        $error->toJSONResponse(
+                            'VALIDATION_ERROR_406',
+                            [
+                                'error_text' => $e->getMessage()
+                            ]
+                        );
+                        return;
+                    }
+                }
+                break;
+            case 'save':
+                $allowedFields = array_merge(
+                    ['name', 'model', 'call_to_order', 'price', 'quantity', 'status'],
+                    (array)$this->data['allowed_fields']
+                );
+                $ids = explode(',', $this->request->post['id']);
+                if (!empty($ids)) {
+                    foreach ($ids as $id) {
+                        $upd = [];
+                        foreach ($allowedFields as $f) {
+                            if ($f == 'status' && !isset($this->request->post['status'][$id])) {
+                                $this->request->post['status'][$id] = 0;
+                            }
+                            if ($f == 'maximum') {
+                                $this->request->post['maximum'][$id] = $this->request->post['maximum'][$id] ?: null;
+                            }
+
+                            if (isset($this->request->post[$f][$id])) {
+                                $err = $this->validateField($id, $f, $this->request->post[$f][$id]);
+                                if (!empty($err)) {
+                                    $error = new AError('');
+                                    $error->toJSONResponse(
+                                        'VALIDATION_ERROR_406',
+                                        [
+                                            'error_text' => $err . ' (' . $this->request->post[$f][$id] . ')'
+                                        ]
+                                    );
+                                    return;
+                                }
+                                $upd[$f] = $this->request->post[$f][$id];
+                            }
+                        }
+                        if (!empty($upd)) {
+                            Product::updateProduct($id, $upd);
+                            $this->extensions->hk_ProcessData($this, 'update', ['product_id' => $id]);
+                        }
+                    }
+                    $this->response->setOutput($this->language->get('text_success'));
+                }
+                break;
+            case 'relate':
+                $ids = explode(',', $this->request->post['id']);
+                if (!empty($ids)) {
+                    Product::relateProducts($ids);
+                }
+                $this->response->setOutput($this->language->get('text_success'));
+                break;
+        }
+
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+    }
+
+    /**
+     * update only one field
+     *
+     * @return void
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     * @throws AException
+     */
+    public function update_field()
+    {
+
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        if (!$this->user->canModify('listing_grid/product')) {
+            $error = new AError('');
+            $error->toJSONResponse('NO_PERMISSIONS_403',
+                [
+                    'error_text'  => sprintf($this->language->get('error_permission_modify'), 'listing_grid/product'),
+                    'reset_value' => true,
+                ]
+            );
+            return;
+        }
+
+        $this->loadLanguage('catalog/product');
+
+        $productId = (int)$this->request->get['id'];
+        if ($productId) {
+            //request sent from edit form. ID in url
+            foreach ($this->request->post as $key => $value) {
+                $err = $this->validateField($productId, $key, $value);
+                if (!empty($err)) {
+                    $error = new AError('');
+                    $error->toJSONResponse('VALIDATION_ERROR_406', ['error_text' => $err]);
+                    return;
+                }
+                if ($key == 'date_available') {
+                    $value = H::dateDisplay2ISO($value);
+                }
+                if ($key == 'maximum') {
+                    $value = abs((int)$value) ?: null;
+                }
+                if ($key == 'minimum') {
+                    $value = max((int)$value, 1);
+                }
+                $data = [$key => $value];
+                Product::updateProduct($productId, $data);
+            }
+            $this->extensions->hk_ProcessData($this, 'update_field', ['product_id' => $productId]);
+            return;
+        }
+
+        //request sent from jGrid. ID is key of array
+        $allowedFields = array_merge(
+            ['name', 'model', 'price', 'call_to_order', 'quantity', 'status'],
+            (array)$this->data['allowed_fields']
+        );
+        //NOTE: structure of data from jqGrid is $_POST[{fieldname}][{productID}] => value
+        foreach ($allowedFields as $f) {
+            if (isset($this->request->post[$f])) {
+                foreach ($this->request->post[$f] as $productId => $v) {
+                    $err = $this->validateField($productId, $f, $v);
+                    if (!empty($err)) {
+                        $error = new AError('');
+                        $error->toJSONResponse('VALIDATION_ERROR_406', ['error_text' => $err]);
+                        return;
+                    }
+                    Product::updateProduct($productId, [$f => $v]);
+                    $this->extensions->hk_ProcessData($this, 'update_field', ['product_id' => $productId]);
+                }
+            }
+        }
+
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+    }
+
+    public function update_discount_field()
+    {
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        if (!$this->user->canModify('listing_grid/product')) {
+            $error = new AError('');
+            $error->toJSONResponse('NO_PERMISSIONS_403',
+                [
+                    'error_text'  => sprintf($this->language->get('error_permission_modify'), 'listing_grid/product'),
+                    'reset_value' => true,
+                ]
+            );
+            return;
+        }
+
+        $this->loadLanguage('catalog/product');
+        if ($this->request->get['id']) {
+            //request sent from edit form. ID in url
+            ProductDiscount::find($this->request->get['id'])?->update($this->request->post);
+
+            $this->extensions->hk_ProcessData(
+                $this,
+                __FUNCTION__,
+                [
+                    'product_id' => $this->request->get['id']
+                ]
+            );
+            return;
+        }
+
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+    }
+
+    public function update_special_field()
+    {
+
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        if (!$this->user->canModify('listing_grid/product')) {
+            $error = new AError('');
+
+            $error->toJSONResponse('NO_PERMISSIONS_403',
+                [
+                    'error_text'  => sprintf(
+                        $this->language->get('error_permission_modify'),
+                        'listing_grid/product'
+                    ),
+                    'reset_value' => true,
+                ]
+            );
+            return;
+        }
+
+        $this->loadLanguage('catalog/product');
+        if ($this->request->get['id']) {
+            //request sent from edit form. ID in url
+            ProductSpecial::find($this->request->get['id'])?->update($this->request->post);
+            $this->extensions->hk_ProcessData(
+                $this,
+                __FUNCTION__,
+                [
+                    'product_id' => $this->request->get['id']
+                ]
+            );
+            return;
+        }
+
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+    }
+
+    public function update_relations_field()
+    {
+
+        //init controller data
+        $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        if (!$this->user->canModify('listing_grid/product')) {
+            $error = new AError('');
+            $error->toJSONResponse('NO_PERMISSIONS_403',
+                [
+                    'error_text'  => sprintf(
+                        $this->language->get('error_permission_modify'),
+                        'listing_grid/product'
+                    ),
+                    'reset_value' => true,
+                ]
+            );
+            return;
+        }
+
+        $this->loadLanguage('catalog/product');
+        if (isset($this->request->get['id'])) {
+            //request sent from edit form. ID in url
+            foreach ($this->request->post as $key => $value) {
+                $data = [
+                    $key => $value
+                ];
+                Product::updateProductLinks($this->request->get['id'], $data);
+            }
+
+            $this->extensions->hk_ProcessData(
+                $this,
+                __FUNCTION__,
+                [
+                    'product_id' => $this->request->get['id']
+                ]
+            );
+            return;
+        }
+
+        //update controller data
+        $this->extensions->hk_UpdateData($this, __FUNCTION__);
+    }
+
+    protected function validateField(int $productId, string $field, $value)
+    {
+        $this->error = [];
+        $data = [$field => $value];
+
+        if ($productId) {
+            $data['product_id'] = $productId;
+        }
+
+        $this->data['error'] = '';
+        $product = Product::find($productId);
+        if (!$product) {
+            $this->data['error'] = 'Product #' . $productId . ' not found.';
+            return $this->data['error'];
+        }
+
+        if ($field == 'maximum') {
+            $data['minimum'] = $product->minimum ?: 1;
+        }
+        if ($field == 'minimum') {
+            $data['maximum'] = $product->maximum ?: null;
+        }
+
+        $pd = new ProductDescription($data);
+
+        if ($field == 'keyword') {
+            $this->data['error'] = $this->html->isSEOkeywordExists('product_id=' . $productId, $value);
+        } elseif (in_array($field, $product->getFillable())) {
+            $casts = $product->getCasts();
+            foreach ($casts as $column => $cast) {
+                if ($cast == NullableInt::class && !$data[$column]) {
+                    $data[$column] = null;
+                }
+            }
+
+            try {
+                $product->validate($data);
+            } catch (ValidationException $e) {
+                H::SimplifyValidationErrors($product->errors()['validation'], $this->error);
+                $this->data['error'] .= implode("\n", $this->error);
+            }
+        } elseif (in_array($field, $pd->getFillable())) {
+            $data['language_id'] = $this->language->getContentLanguageID();
+            $casts = $pd->getCasts();
+            foreach ($casts as $column => $cast) {
+                if ($cast == NullableInt::class && !$data[$column]) {
+                    $data[$column] = null;
+                }
+            }
+            try {
+                $pd->validate($data);
+            } catch (ValidationException $e) {
+                H::SimplifyValidationErrors($pd->errors()['validation'], $this->error);
+                $this->data['error'] .= implode("\n", $this->error);
+            }
+        }
+
+        $this->extensions->hk_ValidateData($this, __FUNCTION__, $field, $value);
+
+        return $this->data['error'];
+    }
+
+    protected function validateDelete($id)
+    {
+        $this->data['error'] = '';
+        $this->extensions->hk_ValidateData($this, __FUNCTION__, $id);
+
+        return $this->data['error'];
+    }
+}

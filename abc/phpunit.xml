@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" backupStaticAttributes="false" bootstrap="tests/bootstrap.php" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" processIsolation="false" stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./abc</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="feature-tests">
+      <directory suffix="Test.php">./tests/feature</directory>
+    </testsuite>
+    <testsuite name="all-unit-tests">
+      <directory suffix="Test.php">./tests/unit</directory>
+    </testsuite>
+    <testsuite name="models-unit-tests-catalog">
+      <directory suffix="Test.php">./tests/unit/models/catalog</directory>
+    </testsuite>
+    <testsuite name="models-unit-tests-customer">
+      <directory suffix="Test.php">./tests/unit/models/customer</directory>
+    </testsuite>
+    <testsuite name="models-unit-tests-locale">
+      <directory suffix="Test.php">./tests/unit/models/locale</directory>
+    </testsuite>
+    <testsuite name="models-unit-tests-order">
+      <directory suffix="Test.php">./tests/unit/models/order</directory>
+    </testsuite>
+      <testsuite name="models-unit-tests-system">
+          <directory suffix="Test.php">./tests/unit/models/system</directory>
+      </testsuite>
+    <testsuite name="models-unit-tests-storefront">
+      <directory suffix="Test.php">./tests/unit/models/storefront</directory>
+    </testsuite>
+    <testsuite name="abc-extensions-feature-tests">
+      <directory suffix="Test.php">../../extensions/*/tests/feature</directory>
+    </testsuite>
+    <testsuite name="abc-extensions-unit-tests">
+      <directory suffix="Test.php">../../extensions/*/tests/unit</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="QUEUE_DRIVER" value="sync"/>
+  </php>
+</phpunit>
