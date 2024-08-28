@@ -6,6 +6,7 @@ use abc\core\engine\AControllerAPI;
 use abc\core\engine\Registry;
 use abc\extensions\licensing\models\storefront\extension\ModelExtensionLicensing;
 use abc\models\catalog\Product;
+use abc\models\order\OrderProduct;
 
 /**
  * Class ControllerApiCatalogLicenseProduct
@@ -51,6 +52,7 @@ class ControllerApiCatalogLicenseProduct extends AControllerAPI
         }
         $output = [];
         foreach ($input['products'] as $item) {
+            $totalCount = $item['total_count'];
             $opId = $item['order_product_id'];
             $output[$opId]['order_product_id'] = $opId;
             $availableLicenses = $this->getAvailableKeys('product_id', $item['product_id'], $item['option_value_sku']);
@@ -72,24 +74,30 @@ class ControllerApiCatalogLicenseProduct extends AControllerAPI
             } else {
                 //if all fine - mark keys as purchased
                 $k = 1;
-                foreach ($availableLicenses as $sku => $r) {
-                    foreach ($r as $row) {
-                        if ($k > $item['quantity']) {
-                            break;
+                $sumQuantity = $this->db->table('licenses')
+                            ->where('order_id',  $input['order_id'])
+                            ->sum('quantity');
+                            
+                if($totalCount != $sumQuantity){
+                    foreach ($availableLicenses as $sku => $r) {
+                        foreach ($r as $row) {
+                            if ($k > $item['quantity']) {
+                                break;
+                            }
+                            $this->db->table('licenses')
+                                     ->where('license_id', $row['license_id'])
+                                     ->update(
+                                [
+                                    'order_id'         => $input['order_id'],
+                                    'order_product_id' => $opId,
+                                    'po_number'        => $input['po_number'],
+                                    'site_alias'       => $input['site_alias'],
+                                    'option_name'      => $item['option_name'],
+                                ]
+                            );
+                            $k++;
+                            $output[$opId]['license_keys'][] = $row;
                         }
-                        $this->db->table('licenses')
-                                 ->where('license_id', $row['license_id'])
-                                 ->update(
-                            [
-                                'order_id'         => $input['order_id'],
-                                'order_product_id' => $opId,
-                                'po_number'        => $input['po_number'],
-                                'site_alias'       => $input['site_alias'],
-                                'option_name'      => $item['option_name'],
-                            ]
-                        );
-                        $k++;
-                        $output[$opId]['license_keys'][] = $row;
                     }
                 }
             }
