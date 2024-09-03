@@ -76,7 +76,7 @@ class ControllerApiCatalogLicenseProduct extends AControllerAPI
                 $k = 1;
                 $sumQuantity = $this->db->table('licenses')
                             ->where('order_id',  $input['order_id'])
-                            ->sum('quantity');
+                            ->count();
                             
                 if($totalCount != $sumQuantity){
                     foreach ($availableLicenses as $sku => $r) {
